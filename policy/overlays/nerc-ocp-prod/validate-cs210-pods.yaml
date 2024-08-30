@@ -1,0 +1,28 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredOPEPod
+metadata:
+  name: validate-ope-pods
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["rhods-notebooks", "ope-rhods-testing-1fef2f"]
+    labelSelector:
+      matchLabels:
+        nerc.mghpcc.org/class: ee440
+  enforcementAction: scoped
+  scopedEnforcementActions:
+  - action: warn
+    enforcementPoints:
+    - name: "validation.gatekeeper.sh"
+  - action: deny
+    enforcementPoints:
+    - name: "gator.gatekeeper.sh"
+  parameters:
+    image: "image-registry.openshift-image-registry.svc:5000/redhat-ods-applications/ucsls-f24:latest"
+    cpuLimit: "1"
+    memLimit: "4Gi"
+    cpuRequest: "100m"
+    memRequest: "1Gi"
+    gpuRequired: false

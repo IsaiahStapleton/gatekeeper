@@ -12,12 +12,22 @@ spec:
           properties:
             image:
               type: string
+            cpuLimit:
+              type: string
+            memLimit:
+              type: string
+            cpuRequest:
+              type: string
+            memRequest:
+              type: string
+            gpuRequired:
+              type: boolean
   targets:
     - target: admission.k8s.gatekeeper.sh
       rego: |
         package K8sRequiredOPEPod
 
-        # Verify running class image
+        # Verify class image
         violation[{"msg": msg}] {
           container := input.review.object.spec.containers[_]
           env_var := container.env[_]
@@ -28,12 +38,12 @@ spec:
           msg := sprintf("Jupyter image %v is not allowed. Must use %v.", [provided, required])
         }
 
-        # Verify XSmall resource size
+        # Verify resource size
         violation[{"msg": msg}] {
-          requiredCpuLimit := "1"
-          requiredMemoryLimit := "4Gi"
-          requiredCpuRequest := "100m"
-          requiredMemoryRequest := "1Gi"
+          requiredCpuLimit := input.parameters.cpuLimit
+          requiredMemoryLimit := input.parameters.memLimit
+          requiredCpuRequest := input.parameters.cpuRequest
+          requiredMemoryRequest := input.parameters.memRequest
 
           container := input.review.object.spec.containers[0]
 
